@@ -1,8 +1,7 @@
-//jshint esversion:6
-
 const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
+const mongoose = require('mongoose');
 const _ = require('lodash');
 const PORT = process.env.PORT || 3000;
 
@@ -11,15 +10,31 @@ const aboutContent = "Hac habitasse platea dictumst vestibulum rhoncus est pelle
 const contactContent = "Scelerisque eleifend donec pretium vulputate sapien. Rhoncus urna neque viverra justo nec ultrices. Arcu dui vivamus arcu felis bibendum. Consectetur adipiscing elit duis tristique. Risus viverra adipiscing at in tellus integer feugiat. Sapien nec sagittis aliquam malesuada bibendum arcu vitae. Consequat interdum varius sit amet mattis. Iaculis nunc sed augue lacus. Interdum posuere lorem ipsum dolor sit amet consectetur adipiscing elit. Pulvinar elementum integer enim neque. Ultrices gravida dictum fusce ut placerat orci nulla. Mauris in aliquam sem fringilla ut morbi tincidunt. Tortor posuere ac ut consequat semper viverra nam libero.";
 
 const app = express();
-const posts = [];
-
+mongoose.connect('mongodb+srv://milind:Test123@cluster0.qrnep.mongodb.net/blogDB?retryWrites=true&w=majority', {useNewUrlParser: true}, () => {
+      console.log("successfully connected to mongoDB");
+    }
+)
+const postSchema = {
+  title: {
+    type: String,
+    required: true
+  }
+  ,
+  content: String
+}
+const post = mongoose.model('post', postSchema);
 app.set('view engine', 'ejs');
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("public"));
 
 app.get('/', (req, res) => {
-    res.render('home', {content: homeStartingContent, posts: posts});
+  post.find({}, (err, result) => {
+    if (!err) {
+      res.render('home', {content: homeStartingContent, posts: result});
+    }
+  })
+
 })
 app.get('/about', (req, res) => {
   res.render('about', {aboutContent: aboutContent});
@@ -31,20 +46,22 @@ app.get('/compose', (req, res)=>{
   res.render('compose');
 })
 app.get('/posts/:title', (req, res) => {
-
-  posts.forEach((post) => {
-    if (_.lowerCase(post.title) === _.lowerCase(req.params.title)) {
-      res.render('post', {post: post});
+  post.find({title: (req.params.title)}, (err, result) => {
+    if (!err) {
+      res.render('post', {post: result[0]});
+    } else {
+      console.log(err);
     }
   })
 })
 app.post('/compose', (req,res)=>{
-  let post = {
+  let newPost = new post({
     title: req.body.postTitle,
     content: req.body.article
-  };
-  posts.push(post)
-  res.redirect('/');
+  });
+  newPost.save((err)=>{
+    if(!err)  res.redirect('/');
+  });
 })
 
 app.listen(PORT, function () {
