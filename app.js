@@ -45,10 +45,10 @@ app.get('/contact', (req, res) => {
 app.get('/compose', (req, res)=>{
   res.render('compose');
 })
-app.get('/posts/:title', (req, res) => {
-  post.find({title: (req.params.title)}, (err, result) => {
+app.get('/posts/:id', (req, res) => {
+  post.findById({_id: (req.params.id)}, (err, result) => {
     if (!err) {
-      res.render('post', {post: result[0]});
+      res.render('post', {post: result});
     } else {
       console.log(err);
     }
