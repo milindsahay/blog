@@ -63,6 +63,9 @@ app.post('/compose', (req,res)=>{
     if(!err)  res.redirect('/');
   });
 })
+app.post('/sample', (req,res)=>{
+  res.send("Success");
+})
 
 app.listen(PORT, function () {
     console.log("Server started on port 3000");
