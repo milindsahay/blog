@@ -1,6 +1,5 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const ejs = require("ejs");
 const mongoose = require('mongoose');
 const _ = require('lodash');
 const cors = require('cors');
@@ -64,9 +63,6 @@ app.post('/compose', (req,res)=>{
   newPost.save((err)=>{
     if(!err)  res.redirect('/');
   });
-})
-app.post('/sample', (req,res)=>{
-  res.send("Success");
 })
 
 app.listen(PORT, function () {
